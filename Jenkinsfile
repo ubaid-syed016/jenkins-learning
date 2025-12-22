@@ -14,7 +14,7 @@ pipeline {
 
         stage('Checkout Code') {
             steps {
-                git'https://github.com/ubaid-syed016/jenkins-learning'
+                git 'https://github.com/yourname/devops-ci-cd-project.git'
             }
         }
 
@@ -52,8 +52,8 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: 'dockerhub-creds',
-                    usernameVariable: 'USER',
-                    passwordVariable: 'PASS'
+                    usernameVariable: 'ubaidullah334',
+                    passwordVariable: '@Dockerhub016'
                 )]) {
                     sh """
                     echo $PASS | docker login -u $USER --password-stdin
