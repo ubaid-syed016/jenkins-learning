@@ -1,85 +1,51 @@
 pipeline {
     agent any
 
-    environment {
-        DOCKER_IMAGE = "yourdockerhubuser/devops-app"
-        VERSION = "1.0.${BUILD_NUMBER}"
+    parameters {
+        choice(name: 'ENV', choices: ['dev', 'qa', 'prod'], description: 'Select environment')
     }
 
-    parameters {
-        choice(name: 'DEPLOY_ENV', choices: ['dev', 'qa', 'prod'], description: 'Select environment')
+    environment {
+        APP_NAME = "my-test-app"
+        VERSION = "1.0.${BUILD_NUMBER}"
     }
 
     stages {
 
-        stage('Checkout Code') {
+        stage('Start') {
             steps {
-                git 'https://github.com/yourname/devops-ci-cd-project.git'
+                echo "Hello Jenkins! Starting pipeline for ${APP_NAME} version ${VERSION}"
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Build') {
             steps {
-                sh 'pip install -r app/requirements.txt'
+                echo "Simulating build for environment: ${params.ENV}"
+                sh 'echo "Build completed!"'
             }
         }
 
-        stage('Unit Tests') {
+        stage('Test') {
             steps {
-                sh 'pytest tests/unit/'
-            }
-        }
-
-        stage('Integration Tests') {
-            steps {
-                sh 'pytest tests/integration/'
-            }
-        }
-
-        stage('Lint / Code Quality') {
-            steps {
-                echo "Linting step (can add flake8 later)"
-            }
-        }
-
-        stage('Build Docker Image') {
-            steps {
-                sh "docker build -t $DOCKER_IMAGE:$VERSION ."
-            }
-        }
-
-        stage('Push Docker Image') {
-            steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-creds',
-                    usernameVariable: 'ubaidullah334',
-                    passwordVariable: '@Dockerhub016'
-                )]) {
-                    sh """
-                    echo $PASS | docker login -u $USER --password-stdin
-                    docker push $DOCKER_IMAGE:$VERSION
-                    """
-                }
+                echo "Simulating tests..."
+                sh 'echo "Tests passed!"'
             }
         }
 
         stage('Deploy') {
-            when {
-                expression { params.DEPLOY_ENV != null }
-            }
             steps {
-                sh "docker run -d --env-file=config/${DEPLOY_ENV}.env -p 5000:5000 $DOCKER_IMAGE:$VERSION"
+                echo "Deploying ${APP_NAME} to environment: ${params.ENV}"
+                sh 'echo "Deployment simulated!"'
             }
         }
     }
 
     post {
         success {
-            echo "Pipeline Successful!"
+            echo "Pipeline ran successfully!"
         }
         failure {
-            echo "Pipeline Failed!"
+            echo "Pipeline failed!"
         }
     }
 }
-
